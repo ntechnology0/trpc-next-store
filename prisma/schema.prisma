@@ -1,0 +1,193 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum OrganizationType {
+  parapharmacy
+}
+
+enum UserType {
+  superadministrator
+  administrator
+  moderator
+}
+
+enum CollectionType {
+  available
+  archived
+}
+
+model Account {
+  id                 String  @id @default(cuid())
+  type               String
+  provider           String
+  refresh_token      String? @db.Text
+  access_token       String? @db.Text
+  expires_at         Int?
+  token_type         String?
+  scope              String?
+  id_token           String? @db.Text
+  session_state      String?
+  oauth_token_secret String?
+  oauth_token        String?
+
+  user              User   @relation(fields: [userId], references: [id])
+  userId            String
+  providerAccountId String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user      User     @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @default(now())
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+model User {
+  id            String         @id @default(cuid())
+  fullname      String?
+  username      String?
+  password      String
+  email         String?        @unique
+  emailVerified DateTime?
+  userPicture   String?
+  accounts      Account[]
+  sessions      Session[]
+  addresses     Address[]
+  organizations Organization[]
+  configured    Boolean        @default(false)
+  userType      UserType       @default(administrator)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @default(now())
+
+  @@map("users")
+}
+
+model Organization {
+  id                      String           @id @default(cuid())
+  name                    String
+  reference               String           @unique @default(uuid())
+  type                    OrganizationType @default(parapharmacy)
+  address_line_1          String
+  address_line_2          String?
+  city                    String
+  zipOrPostcode           String
+  stateOrProvinceOrCounty String
+  country                 Country?         @relation(name: "countryOrganization", fields: [countryId], references: [id])
+  countryId               String?
+  createdAt               DateTime         @default(now())
+  updatedAt               DateTime         @default(now())
+  user                    User             @relation(references: [id], fields: [userId])
+  userId                  String
+
+  collections Collection[]
+
+  @@unique([name, id])
+  @@map("organizations")
+}
+
+model Membership {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+  reference String   @default(uuid())
+
+  @@unique([id, reference])
+  @@map("memberships")
+}
+
+model Country {
+  id           String         @id @default(cuid())
+  name         String
+  slug         String         @unique
+  reference    String         @unique @default(uuid())
+  organization Organization[] @relation(name: "countryOrganization")
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @default(now())
+  address      Address[]
+
+  @@unique([slug, name])
+  @@map("countries")
+}
+
+model Category {
+  id        String     @id @default(cuid())
+  slug      String     @unique
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @default(now())
+  name      String
+  reference String     @unique @default(uuid())
+  parent    Category?  @relation("categorySelfRelation", references: [id], fields: [parentId])
+  parentId  String?
+  children  Category[] @relation("categorySelfRelation")
+
+  @@unique([id, reference])
+  @@map("categories")
+}
+
+model Collection {
+  id             String         @id @default(cuid())
+  slug           String         @unique
+  name           String
+  description    String         @db.Text
+  picture        String?
+  reference      String         @unique @default(uuid())
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @default(now())
+  status         CollectionType @default(archived)
+  organization   Organization   @relation(fields: [organizationId], references: [id])
+  organizationId String
+
+  @@unique([id, reference])
+  @@map("collections")
+}
+
+model Address {
+  id        String @id @default(cuid())
+  slug      String @unique
+  name      String
+  reference String @unique @default(uuid())
+
+  address_line_1 String
+  address_line_2 String
+  city           String
+  postcal_code   String
+  user           User?    @relation(references: [id], fields: [userId])
+  country        Country? @relation(references: [id], fields: [countryId])
+  countryId      String?
+  userId         String?
+
+  @@unique([reference, userId])
+  @@map("addresses")
+}

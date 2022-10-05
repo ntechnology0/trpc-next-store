@@ -1,0 +1,63 @@
+.buttons {
+  &__primary {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding: 6px 8px;
+    gap: 8px;
+    background: #0389ff;
+    box-shadow: 0px 2px 5px rgba(60, 66, 87, 0.08), 0px 0px 0px 1px #0071dc,
+      0px 1px 1px rgba(0, 0, 0, 0.12);
+    border-radius: 4px;
+    color: #ffffff !important;
+    font-size: 0.875em;
+    font-family: "Inter";
+    cursor: pointer !important;
+  }
+  &__neutral {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding: 6px 8px;
+    gap: 8px;
+    background: #ffffff;
+    box-shadow: 0px 2px 5px rgba(60, 66, 87, 0.08),
+      0px 0px 0px 1px rgba(60, 66, 87, 0.16), 0px 1px 1px rgba(0, 0, 0, 0.12);
+    border-radius: 4px;
+    color: #3c4257 !important;
+    font-size: 0.875em;
+    font-family: "Inter";
+    cursor: pointer !important;
+  }
+  &__transparent {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding: 6px 8px;
+    gap: 8px;
+    background: #ffffff;
+    border-radius: 4px;
+    color: #3c4257 !important;
+    font-size: 0.875em;
+    font-family: "Inter";
+    cursor: pointer !important;
+  }
+}
+
+.fonts {
+  &__inter_regular {
+    font-family: "Inter", sans-serif;
+  }
+  &__poppins_regular {
+    font-family: "Poppins", sans-serif;
+  }
+  &__hightlight {
+    color: #0389ff;
+  }
+}
+
+.height {
+  &__row {
+    min-height: calc(100vh - 80px);
+  }
+}
